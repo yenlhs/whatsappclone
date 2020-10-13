@@ -277,7 +277,6 @@ function Chat() {
 						<MenuItem value={'yue'}>Cantonese</MenuItem>
 						<MenuItem value={'th'}>Thai</MenuItem>
 						<MenuItem value={'ko'}>Korean</MenuItem>
-						<MenuItem value={'yue'}>Cantonese</MenuItem>
 					</Select>
 				</FormControl>
 			</div>
