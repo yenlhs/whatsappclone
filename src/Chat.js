@@ -184,6 +184,7 @@ function Chat() {
 	// console.log('Language', language)
 	// console.log('languageFrom', languageFrom);
 	// console.log('languageTo', languageTo);
+	console.log(process.env.TESTENV)
   return (
 		<div className='chat'>
 			<div className='chat__header'>
