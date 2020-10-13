@@ -184,7 +184,7 @@ function Chat() {
 	// console.log('Language', language)
 	// console.log('languageFrom', languageFrom);
 	// console.log('languageTo', languageTo);
-	console.log(process.env.TESTENV)
+	console.log(process.env.REACT_APP_TESTENV)
   return (
 		<div className='chat'>
 			<div className='chat__header'>
