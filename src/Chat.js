@@ -45,8 +45,8 @@ function Chat() {
 
 	//set the states
 	const [input, setInput] = useState("");
-	const [languageTo, setLanguageTo] = useState('en');
-	const [languageFrom, setLanguageFrom] = useState('en');
+	// const [languageTo, setLanguageTo] = useState('en');
+	// const [languageFrom, setLanguageFrom] = useState('en');
 	const [language, setLanguage] = useState('')
 	const [chatId, setChatId] = useState("");
 	const [isHost, setIsHost] = useState();
@@ -66,18 +66,6 @@ function Chat() {
 		const channel = pusher.subscribe(`conversations_${chatId}`);
 		// const channel = pusher.subscribe('conversations');
 		channel.bind('updated', async (data) => {
-			console.log('Event data',data)
-			// console.log('data', data._id);
-			// console.log('data.text', data.message)
-			// console.log('Check eventIds', messages.includes(data));
-			// console.log('check indexof', messages.indexOf(data._id))
-			// if (!eventIds.includes(data._id)) {
-			// 	setMessages([...messages, data]);
-			// 	console.log('adfas')
-			// 	setEventIds([...eventIds, data._id]);
-			// }
-			// setTranslatedMessages([...translatedMessages, data])
-			// setMessages([...messages, data]);
 			if (!eventIds.includes(data._id)) {
 				console.log('eventIds', eventIds);
 				console.log('data_id', data._id);
@@ -91,7 +79,7 @@ function Chat() {
 				//translate the text
 				const response = await axios.post('/az/translate', translate_payload);
 				const translated_text = response.data[0].text;
-				console.log('translated_text', translated_text)
+				console.log('translated_text', translated_text);
 				if (translated_text) {
 					const msg_update_payload = {
 						chatId: chatId,
@@ -111,31 +99,14 @@ function Chat() {
 					);
 					setTranslatedMessages([...translatedMessages, translated_text]);
 					// setMessages([...messages, ])
-
 				}
 			}
-			
-
-			// set the payload to translate
-			
-
-			// console.log('translate_payload', translate_payload);
-
-			// //translate the text
-			// const response = await axios.post('/az/translate', translate_payload);
-			// const translated_text = response.data[0].text;
-			// console.log('translated_text', translated_text)
-			// if (translated_text) {
-			// 	//update message
-
-			// 	setTranslatedMessages([...translatedMessages, translated_text]);
-			// }
 		});
 		return () => {
 			channel.unsubscribe();
 			channel.unbind_all();
 		};
-	}, [messages, translatedMessages, eventIds]);
+	}, [messages, translatedMessages, eventIds, language]);
 
 	// join the conversation
 	const joinConversation = async(e) => {
@@ -144,16 +115,6 @@ function Chat() {
 		setChatId(chatId)
 		setIsHost(false)
 		setLanguage(language)
-
-		// const payload_lang = {
-		// 	chatId: chatId,
-		// 	lang_to: language
-		// }
-		// const lang_res = axios.post('/setlanguage', payload_lang)
-		// if(lang_res) {
-			
-		// }
-		// console.log(lang_res)
 		history.push('/'+chatId)
 	}
 
@@ -203,52 +164,13 @@ function Chat() {
 		setMessages([...messages, msg_payload]);
 		setInput('');
 
-		// set the language to translate to and from
-		// if langauge is set every subsequent message will not
-		// make this call again
-		// if (!languageFrom && !languageTo){
-		//get the "from and to" langauges
-		// const res = await axios.post('/getlanguage', { chatId: chatId });
-		// console.log('/getlanguage called', res.data)
-
-		// if (isHost) {
-		// 	setLanguageFrom(res.data.lang_from);
-		// 	setLanguageTo(res.data.lang_to);
-		// } else {
-		// 	setLanguageFrom(res.data.lang_to);
-		// 	setLanguageTo(res.data.lang_from);
-		// }
-		// }
-
-		//set payload to save message in database with translated text
-		// const msg_payload = {
-		// 	chatId: chatId,
-		// 	message: input,
-		// 	username: 'adrian',
-		// 	translated_message: null,
-		// 	// isHost: true,
-		// };
-
 		//save message in database
 		const msg_response = await axios.post('/api/message', msg_payload);
 		console.log('msg_response',msg_response)
 		setEventIds(msg_response.data._id)
-
-		//set the payload to translate
-		// const translate_payload = {
-		// 	text: input,
-		// 	from: languageFrom,
-		// 	to: languageTo,
-		// };
-
-		// console.log('translate_payload', translate_payload);
-
-		// //translate the text
-		// const response = await axios.post('/az/translate', translate_payload);
-		// const translated_text = response.data[0].text;
 	}
 
-
+	// drop down languages list
 	const handleChange = (event) => {
 		event.preventDefault()
 		setLanguage(event.target.value);
@@ -256,10 +178,10 @@ function Chat() {
 
 	// console.log('ChatId:', chatId);
 	// console.log(input)
-	console.log('MESSAGES', messages)
+	// console.log('MESSAGES', messages)
 	// console.log('TRANSLATEDMESSAGES', translatedMessages);
 	// console.log('isHost', isHost)
-	console.log('Language', language)
+	// console.log('Language', language)
 	// console.log('languageFrom', languageFrom);
 	// console.log('languageTo', languageTo);
   return (
