@@ -18,11 +18,12 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import axios from './axios'
 
+
 Pusher.logToConsole = true;
 // set pusher client key
 
 //dev
-const pusher = new Pusher('d7237d909a71b2a779b3', {
+const pusher = new Pusher(process.env.REACT_APP_PUSHER_CLIENT, {
 	cluster: 'ap4',
 });
 
@@ -36,26 +37,21 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-//staging
-// const pusher = new Pusher('b97f99bfc99522fcc8ba', {
-// 	cluster: 'ap4',
-// });
 
 function Chat() {
 
 	//set the states
 	const [input, setInput] = useState("");
-	// const [languageTo, setLanguageTo] = useState('en');
-	// const [languageFrom, setLanguageFrom] = useState('en');
 	const [language, setLanguage] = useState('')
 	const [chatId, setChatId] = useState("");
 	const [isHost, setIsHost] = useState();
+	const [username, setUsername] = useState('');
 
 	// used for messages input by user
 	const [messages, setMessages] = useState([]);
 
 	// used for translated objects when event comes back
-	const [translatedMessages, setTranslatedMessages] = useState([])
+	// const [translatedMessages, setTranslatedMessages] = useState([])
 
 	const history = useHistory();
 	const classes = useStyles();
@@ -85,7 +81,7 @@ function Chat() {
 						chatId: chatId,
 						messageId: data._id,
 						message: data.message,
-						username: isHost ? 'Adrian' : 'Donor',
+						username: username,
 						translated_message: translated_text,
 						lang_to: language,
 						timestamp: 'sometimestamp',
@@ -97,8 +93,20 @@ function Chat() {
 						'/api/updatemessage',
 						msg_update_payload
 					);
-					setTranslatedMessages([...translatedMessages, translated_text]);
-					// setMessages([...messages, ])
+
+					console.log('update_msg_res', update_msg_res);
+
+
+					const trans_message_payload = {
+						chatId: chatId,
+						message: translated_text,
+						username: username,
+						translated_message: data.message,
+						lang_to: language,
+						timestamp: "sometimstamp",
+					};
+					// setTranslatedMessages([...translatedMessages, translated_text]);
+					setMessages([...messages, trans_message_payload]);
 				}
 			}
 		});
@@ -106,7 +114,7 @@ function Chat() {
 			channel.unsubscribe();
 			channel.unbind_all();
 		};
-	}, [messages, translatedMessages, eventIds, language]);
+	}, [messages, eventIds, language]);
 
 	// join the conversation
 	const joinConversation = async(e) => {
@@ -115,6 +123,7 @@ function Chat() {
 		setChatId(chatId)
 		setIsHost(false)
 		setLanguage(language)
+		setUsername('Guest')
 		history.push('/'+chatId)
 	}
 
@@ -129,7 +138,8 @@ function Chat() {
 		setChatId(startConvRes.data._id);
 		setMessages([]) 
 		setIsHost(true)
-		setTranslatedMessages([])
+		// setTranslatedMessages([])
+		setUsername('Donor Staff');
 		history.replace('/'+startConvRes.data._id)
 	}
 
@@ -142,7 +152,7 @@ function Chat() {
 		if (endConRes){
 			setChatId('')
 			setMessages([])
-			setTranslatedMessages([])
+			// setTranslatedMessages([])
 		}
 	};
 
@@ -184,7 +194,6 @@ function Chat() {
 	// console.log('Language', language)
 	// console.log('languageFrom', languageFrom);
 	// console.log('languageTo', languageTo);
-	console.log(process.env.REACT_APP_TESTENV)
   return (
 		<div className='chat'>
 			<div className='chat__header'>
@@ -218,12 +227,12 @@ function Chat() {
 					</p>
 				))}
 			</div>
-			<div className='chat__translatedbody'>
+			{/* <div className='chat__translatedbody'>
 				{translatedMessages.map((translatedmessage) => (
 					<p
 						className={`chat__message ${translatedmessage && 'chat__receiver'}`}
 					>
-						<span className='chat__name'>{translatedmessage}</span>
+						<span className='chat__name'>{translatedmessage.username}</span>
 						{isHost
 							? translatedmessage.message
 							: translatedmessage.translated_message}
@@ -234,7 +243,7 @@ function Chat() {
 						<span>{translatedmessage.translated_message}</span>
 					</p>
 				))}
-			</div>
+			</div> */}
 
 			<div className='chat__footer'>
 				<InsertEmoticon />
