@@ -46,36 +46,27 @@ function Chat() {
 	const [chatId, setChatId] = useState("");
 	const [isHost, setIsHost] = useState();
 	const [username, setUsername] = useState('');
-
-	// used for messages input by user
 	const [messages, setMessages] = useState([]);
+	const [eventIds, setEventIds] = useState([]);
 
-	// used for translated objects when event comes back
-	// const [translatedMessages, setTranslatedMessages] = useState([])
 
 	const history = useHistory();
 	const classes = useStyles();
-	const [eventIds, setEventIds] = useState([]);
 
 	// handle messages coming through from pusher
 	useEffect(() => {
 		const channel = pusher.subscribe(`conversations_${chatId}`);
-		// const channel = pusher.subscribe('conversations');
 		channel.bind('updated', async (data) => {
 			if (!eventIds.includes(data._id)) {
-				console.log('eventIds', eventIds);
-				console.log('data_id', data._id);
 				const translate_payload = {
 					text: data.message,
 					from: data.lang_to,
 					to: language,
 				};
-				console.log('translate_payload', translate_payload);
 
 				//translate the text
 				const response = await axios.post('/az/translate', translate_payload);
 				const translated_text = response.data[0].text;
-				console.log('translated_text', translated_text);
 				if (translated_text) {
 					const msg_update_payload = {
 						chatId: chatId,
@@ -88,14 +79,10 @@ function Chat() {
 					};
 					// update message the same message ID with the updated translated_text field
 					// create new API for this
-					console.log('msg_update_payload', msg_update_payload);
 					const update_msg_res = await axios.post(
 						'/api/updatemessage',
 						msg_update_payload
 					);
-
-					console.log('update_msg_res', update_msg_res);
-
 
 					const trans_message_payload = {
 						chatId: chatId,
@@ -105,7 +92,6 @@ function Chat() {
 						lang_to: language,
 						timestamp: "sometimstamp",
 					};
-					// setTranslatedMessages([...translatedMessages, translated_text]);
 					setMessages([...messages, trans_message_payload]);
 				}
 			}
@@ -138,7 +124,6 @@ function Chat() {
 		setChatId(startConvRes.data._id);
 		setMessages([]) 
 		setIsHost(true)
-		// setTranslatedMessages([])
 		setUsername('Donor Staff');
 		history.replace('/'+startConvRes.data._id)
 	}
@@ -152,14 +137,12 @@ function Chat() {
 		if (endConRes){
 			setChatId('')
 			setMessages([])
-			// setTranslatedMessages([])
 		}
 	};
 
 	// send message to conversation
 	const sendMessage = async (e) => {
 		e.preventDefault();
-
 		//set messeage in UI first
 		//this is to avoid the delay from the sender
 		const msg_payload = {
@@ -170,7 +153,6 @@ function Chat() {
 			lang_to: language,
 			timestamp: "sometimestamp",
 		};
-		// setMessages([...messages, input]);
 		setMessages([...messages, msg_payload]);
 		setInput('');
 
@@ -186,14 +168,6 @@ function Chat() {
 		setLanguage(event.target.value);
 	};
 
-	// console.log('ChatId:', chatId);
-	// console.log(input)
-	// console.log('MESSAGES', messages)
-	// console.log('TRANSLATEDMESSAGES', translatedMessages);
-	// console.log('isHost', isHost)
-	// console.log('Language', language)
-	// console.log('languageFrom', languageFrom);
-	// console.log('languageTo', languageTo);
   return (
 		<div className='chat'>
 			<div className='chat__header'>
@@ -227,24 +201,6 @@ function Chat() {
 					</p>
 				))}
 			</div>
-			{/* <div className='chat__translatedbody'>
-				{translatedMessages.map((translatedmessage) => (
-					<p
-						className={`chat__message ${translatedmessage && 'chat__receiver'}`}
-					>
-						<span className='chat__name'>{translatedmessage.username}</span>
-						{isHost
-							? translatedmessage.message
-							: translatedmessage.translated_message}
-						{translatedmessage}
-						<span className='chat__timestamp'>
-							{translatedmessage.timestamp}
-						</span>
-						<span>{translatedmessage.translated_message}</span>
-					</p>
-				))}
-			</div> */}
-
 			<div className='chat__footer'>
 				<InsertEmoticon />
 				<form>
